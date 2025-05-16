@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AR.js with Sound Example</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/3.3.2/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body,
+      html {
+        margin: 0;
+        overflow: hidden;
+        height: 100%;
+      }
+      #start-button {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 20px;
+        background: #4caf50;
+        color: white;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        z-index: 9999;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="start-button">Start AR (Enable Sound)</button>
+
+    <a-scene embedded arjs>
+      <a-assets>
+        <!-- Replace with your actual model URL or local path -->
+        <a-asset-item id="my-model" src="modelnew.glb"></a-asset-item>
+
+        <!-- Google Actions public sound -->
+        <audio id="click-sound" preload="auto" controls style="display: none">
+          <source
+            src="https://actions.google.com/sounds/v1/wood/wood_creak_2.mp3"
+            type="audio/mpeg"
+          />
+          Your browser does not support the audio element.
+        </audio>
+      </a-assets>
+
+      <a-marker preset="hiro" id="marker">
+        <a-entity
+          id="animated-model"
+          gltf-model="#my-model"
+          scale="0.5 0.5 0.5"
+          position="0 0 0"
+          rotation="0 0 0"
+          animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
+        ></a-entity>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      const startButton = document.getElementById("start-button");
+      const marker = document.getElementById("marker");
+      const audioEl = document.getElementById("click-sound");
+
+      startButton.addEventListener("click", () => {
+        audioEl
+          .play()
+          .then(() => {
+            audioEl.pause();
+            audioEl.currentTime = 0;
+            startButton.style.display = "none";
+
+            marker.addEventListener("markerFound", () => {
+              console.log("Marker found! Playing sound.");
+              audioEl.play();
+            });
+
+            marker.addEventListener("markerLost", () => {
+              console.log("Marker lost! Pausing sound.");
+              audioEl.pause();
+              audioEl.currentTime = 0;
+            });
+          })
+          .catch((err) => {
+            alert("Audio playback failed: " + err);
+          });
+      });
+    </script>
+  </body>
+</html>
